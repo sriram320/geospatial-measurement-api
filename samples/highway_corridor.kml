@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<name>NH corridor survey, Kolar section (synthetic)</name>
+<Folder><name>Centre-lines</name>
+<Placemark><name>Package A centre-line</name><ExtendedData><Data name="package"><value>A</value></Data><Data name="lanes"><value>4</value></Data></ExtendedData><LineString><coordinates>77.700000000,13.000000000 77.760000000,13.020000000 77.830000000,13.035000000 77.900000000,13.060000000 77.975000000,13.080000000</coordinates></LineString></Placemark>
+<Placemark><name>Package B centre-line</name><ExtendedData><Data name="package"><value>B</value></Data><Data name="lanes"><value>4</value></Data></ExtendedData><LineString><coordinates>78.025000000,13.090000000 78.100000000,13.100000000 78.180000000,13.120000000 78.260000000,13.150000000 78.340000000,13.170000000 78.400000000,13.190000000</coordinates></LineString></Placemark>
+<Placemark><name>Full route centre-line</name><ExtendedData><Data name="package"><value>A+B</value></Data><Data name="lanes"><value>4</value></Data></ExtendedData><LineString><coordinates>77.700000000,13.000000000 77.760000000,13.020000000 77.830000000,13.035000000 77.900000000,13.060000000 77.975000000,13.080000000 78.025000000,13.090000000 78.100000000,13.100000000 78.180000000,13.120000000 78.260000000,13.150000000 78.340000000,13.170000000 78.400000000,13.190000000</coordinates></LineString></Placemark>
+</Folder>
+<Folder><name>Right of way</name>
+<Placemark><name>Package A right of way</name><ExtendedData><Data name="width_m"><value>60</value></Data></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>77.759925787,13.020261471 77.829922853,13.035260832 77.899916283,13.060258467 77.974927497,13.080261442 77.975072503,13.079738558 77.900083717,13.059741533 77.830077147,13.034739168 77.760074213,13.019738529 77.700088978,12.999743437 77.699911022,13.000256563 77.759925787,13.020261471</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Package B right of way</name><ExtendedData><Data name="width_m"><value>60</value></Data></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>78.099947039,13.100266384 78.179916158,13.120258683 78.259916136,13.150258692 78.339921171,13.170259974 78.399910953,13.190256582 78.400089047,13.189743418 78.340078829,13.169740026 78.260083864,13.149741308 78.180083842,13.119741317 78.100052961,13.099733616 78.025037292,13.089731547 78.024962708,13.090268453 78.099947039,13.100266384</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+</Folder>
+<Folder><name>Chainage</name>
+<Placemark><name>Km 0+000</name><ExtendedData><Data name="chainage_km"><value>0</value></Data></ExtendedData><Point><coordinates>77.700000000,13.000000000</coordinates></Point></Placemark>
+<Placemark><name>Km 5+000</name><ExtendedData><Data name="chainage_km"><value>5</value></Data></ExtendedData><Point><coordinates>77.743637800,13.014547630</coordinates></Point></Placemark>
+<Placemark><name>Km 10+000</name><ExtendedData><Data name="chainage_km"><value>10</value></Data></ExtendedData><Point><coordinates>77.788147138,13.026034021</coordinates></Point></Placemark>
+<Placemark><name>Km 15+000</name><ExtendedData><Data name="chainage_km"><value>15</value></Data></ExtendedData><Point><coordinates>77.833058179,13.036092708</coordinates></Point></Placemark>
+<Placemark><name>Km 20+000</name><ExtendedData><Data name="chainage_km"><value>20</value></Data></ExtendedData><Point><coordinates>77.876370767,13.051563672</coordinates></Point></Placemark>
+<Placemark><name>Km 25+000</name><ExtendedData><Data name="chainage_km"><value>25</value></Data></ExtendedData><Point><coordinates>77.920217706,13.065393851</coordinates></Point></Placemark>
+<Placemark><name>Km 30+000</name><ExtendedData><Data name="chainage_km"><value>30</value></Data></ExtendedData><Point><coordinates>77.964704077,13.077255902</coordinates></Point></Placemark>
+<Placemark><name>Km 35+000</name><ExtendedData><Data name="chainage_km"><value>35</value></Data></ExtendedData><Point><coordinates>78.009719515,13.086945017</coordinates></Point></Placemark>
+<Placemark><name>Km 40+000</name><ExtendedData><Data name="chainage_km"><value>40</value></Data></ExtendedData><Point><coordinates>78.055232412,13.094033709</coordinates></Point></Placemark>
+<Placemark><name>Km 45+000</name><ExtendedData><Data name="chainage_km"><value>45</value></Data></ExtendedData><Point><coordinates>78.100899113,13.100224934</coordinates></Point></Placemark>
+<Placemark><name>Km 50+000</name><ExtendedData><Data name="chainage_km"><value>50</value></Data></ExtendedData><Point><coordinates>78.145576996,13.111397693</coordinates></Point></Placemark>
+<Placemark><name>Km 55+000</name><ExtendedData><Data name="chainage_km"><value>55</value></Data></ExtendedData><Point><coordinates>78.189887271,13.123709472</coordinates></Point></Placemark>
+<Placemark><name>Km 60+000</name><ExtendedData><Data name="chainage_km"><value>60</value></Data></ExtendedData><Point><coordinates>78.232955495,13.139861917</coordinates></Point></Placemark>
+<Placemark><name>Km 65+000</name><ExtendedData><Data name="chainage_km"><value>65</value></Data></ExtendedData><Point><coordinates>78.276628234,13.154159380</coordinates></Point></Placemark>
+<Placemark><name>Km 70+000</name><ExtendedData><Data name="chainage_km"><value>70</value></Data></ExtendedData><Point><coordinates>78.321316015,13.165331528</coordinates></Point></Placemark>
+<Placemark><name>Km 75+000</name><ExtendedData><Data name="chainage_km"><value>75</value></Data></ExtendedData><Point><coordinates>78.365408930,13.178471757</coordinates></Point></Placemark>
+</Folder>
+</Document>
+</kml>

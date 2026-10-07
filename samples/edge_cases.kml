@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Edge cases</name>
+    <Placemark id="fiji-parcel">
+      <name>Fiji parcel</name>
+      <description>A parcel that straddles the 180th meridian.</description>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          179.995,-16.80 -179.995,-16.80 -179.995,-16.79 179.995,-16.79 179.995,-16.80
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark id="ferry">
+      <name>Ferry route</name>
+      <description>A route across the 180th meridian.</description>
+      <LineString>
+        <coordinates>179.90,-16.85 -179.95,-16.80 -179.85,-16.70</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="pit-ramp">
+      <name>Pit ramp</name>
+      <description>A haul road climbing out of a quarry, with surveyed elevations.</description>
+      <LineString>
+        <altitudeMode>absolute</altitudeMode>
+        <coordinates>77.4040,13.3502,872.0 77.4048,13.3499,893.5 77.4056,13.3501,915.0 77.4060,13.3505,926.0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark id="fence-clamped">
+      <name>Fence (clamped to ground)</name>
+      <description>Same kind of line, but its altitudes are ignored as KML's default clampToGround requires.</description>
+      <LineString>
+        <coordinates>77.3990,13.3490,880 77.4010,13.3492,900 77.4030,13.3490,880</coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    image: geomeasure
+    ports:
+      - "8000:8000"
+    volumes:
+      - geomeasure-data:/data
+    restart: unless-stopped
+
+volumes:
+  geomeasure-data:

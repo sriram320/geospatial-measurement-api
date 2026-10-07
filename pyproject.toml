@@ -1,0 +1,26 @@
+[project]
+name = "geospatial-measurement-api"
+version = "1.0.0"
+description = "Upload a KML or zipped Shapefile and get the area and length of its features."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "BLE"]
+ignore = [
+    "B008",  # FastAPI's Depends()/Query()/File() defaults are the documented pattern
+    "UP042", # (str, Enum) keeps Python 3.10 support; StrEnum needs 3.11
+    "UP017", # datetime.UTC needs 3.11
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/geo/types.py" = ["E261", "E262"]

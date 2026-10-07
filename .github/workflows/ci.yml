@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t geomeasure .
+      - name: Start the container
+        run: docker run -d --name api -p 8000:8000 geomeasure
+      - name: Wait until it is healthy
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && exit 0
+            sleep 1
+          done
+          docker logs api
+          exit 1
+      - name: Upload a sample and check the answer
+        run: |
+          body=$(curl -sf -F "file=@samples/parcels_utm43n.zip" http://localhost:8000/api/files/)
+          id=$(echo "$body" | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
+          areas=$(curl -sf "http://localhost:8000/api/files/$id/measurements/" \
+            | python3 -c "import sys, json; print([r['area_m2'] for r in json.load(sys.stdin)['results']])")
+          echo "areas: $areas"
+          test "$areas" = "[5000.0, 30000.0, 1000.0, 100000.0]"
+      - name: Show the logs if anything failed
+        if: failure()
+        run: docker logs api

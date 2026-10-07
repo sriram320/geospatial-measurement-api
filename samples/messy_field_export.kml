@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns:gx="http://www.google.com/kml/ext/2.2">
+<Document>
+<name>Field app export</name>
+<Folder><name>Survey 2026-09 / ಸರ್ವೆ</name>
+<Folder><name>Parcels</name>
+<Placemark><name>ಗೋಮಾಳ ಜಮೀನು (common grazing land)</name><Polygon><outerBoundaryIs><LinearRing><coordinates>
+	77.4000,13.3500,0
+	77.4012,13.3500,0  77.4012,13.3500,0
+	77.4012,13.3511,0
+	77.4000,13.3511,0
+</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Plot written as lat,lon (Guwahati)</name><ExtendedData><Data name="surveyor"><value>Team NE-2</value></Data></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>26.140000000,91.740000000 26.141000000,91.740000000 26.141000000,91.741200000 26.140000000,91.741200000 26.140000000,91.740000000</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Boundary that crosses itself</name><Polygon><outerBoundaryIs><LinearRing><coordinates>77.402000000,13.350000000 77.403000000,13.351000000 77.403000000,13.350000000 77.402000000,13.351000000 77.402000000,13.350000000</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Zero-area sliver</name><Polygon><outerBoundaryIs><LinearRing><coordinates>77.404000000,13.350000000 77.404500000,13.350000000 77.405000000,13.350000000 77.404000000,13.350000000</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Pond</name><description><![CDATA[<b>Seasonal</b> pond, dry Jan-May]]></description><ExtendedData><SchemaData schemaUrl="#survey"><SimpleData name="depth_m">2.5</SimpleData></SchemaData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>77.406000000,13.350000000 77.406600000,13.350000000 77.406600000,13.350500000 77.406000000,13.350500000 77.406000000,13.350000000</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+</Folder>
+<Folder><name>Lines and points</name>
+<Placemark><name>Footpath (empty coordinates)</name><LineString><coordinates>  </coordinates></LineString></Placemark>
+<Placemark><name>Drain (comma-space typed by hand)</name><LineString><coordinates>77.4000, 13.3520 77.4010, 13.3521</coordinates></LineString></Placemark>
+<Placemark><name>Boundary stone BS-7</name><Point><coordinates>77.400000000,13.350000000</coordinates></Point></Placemark>
+<Placemark><name>Walked boundary (GPS track)</name><gx:Track><when>2026-09-28T09:00:00Z</when><gx:coord>77.4 13.35 0</gx:coord></gx:Track></Placemark>
+<Placemark><name>Water tank (3D model)</name><Model><Location><longitude>77.401</longitude><latitude>13.351</latitude></Location></Model></Placemark>
+<Placemark><name>Gate and fence</name><MultiGeometry><Point><coordinates>77.407000000,13.350000000</coordinates></Point><LineString><coordinates>77.407000000,13.350000000 77.408000000,13.350000000</coordinates></LineString></MultiGeometry></Placemark>
+<Placemark><name>Note to office</name><description>Re-survey plot 12 next visit</description></Placemark>
+</Folder>
+</Folder>
+</Document>
+</kml>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Demo file for the Geospatial File Measurement API.
+  A fictional quarry site. Between them, the nine placemarks exercise every
+  measurement status the API can return.
+-->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Demo quarry site</name>
+
+    <Folder>
+      <name>Boundaries</name>
+
+      <Placemark id="pit-01">
+        <name>Pit boundary</name>
+        <description>Active pit. The inner ring is an unmined island and must be subtracted.</description>
+        <ExtendedData>
+          <Data name="zone"><value>North pit</value></Data>
+          <Data name="surveyed_on"><value>2026-09-28</value></Data>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.4000,13.3500,0 77.4040,13.3502,0 77.4046,13.3528,0 77.4022,13.3536,0 77.3998,13.3524,0 77.4000,13.3500,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+          <innerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.4016,13.3512,0 77.4022,13.3512,0 77.4022,13.3517,0 77.4016,13.3517,0 77.4016,13.3512,0
+              </coordinates>
+            </LinearRing>
+          </innerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <Placemark id="stockpile-a">
+        <name>Stockpile A</name>
+        <ExtendedData>
+          <Data name="material"><value>Crushed granite</value></Data>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.4060,13.3505 77.4068,13.3505 77.4070,13.3511 77.4063,13.3514 77.4058,13.3510 77.4060,13.3505
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <Placemark id="topsoil">
+        <name>Topsoil dumps</name>
+        <description>Two separate polygons in one feature (a MultiPolygon).</description>
+        <MultiGeometry>
+          <Polygon>
+            <outerBoundaryIs><LinearRing><coordinates>
+              77.3985,13.3540 77.3992,13.3540 77.3992,13.3546 77.3985,13.3546 77.3985,13.3540
+            </coordinates></LinearRing></outerBoundaryIs>
+          </Polygon>
+          <Polygon>
+            <outerBoundaryIs><LinearRing><coordinates>
+              77.3996,13.3542 77.4002,13.3542 77.4002,13.3547 77.3996,13.3547 77.3996,13.3542
+            </coordinates></LinearRing></outerBoundaryIs>
+          </Polygon>
+        </MultiGeometry>
+      </Placemark>
+
+      <Placemark id="draft-01">
+        <name>Draft extension (self-intersecting)</name>
+        <description>Digitised in the wrong vertex order, so it crosses itself like a bow-tie.</description>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.4080,13.3520 77.4090,13.3530 77.4090,13.3520 77.4080,13.3530 77.4080,13.3520
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Access</name>
+
+      <Placemark id="haul-road-1">
+        <name>Haul road</name>
+        <ExtendedData>
+          <Data name="surface"><value>Gravel</value></Data>
+        </ExtendedData>
+        <LineString>
+          <coordinates>
+            77.4040,13.3502 77.4048,13.3499 77.4056,13.3501 77.4060,13.3505
+          </coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Survey control</name>
+
+      <Placemark id="gcp-1">
+        <name>GCP-1</name>
+        <Point><coordinates>77.4001,13.3501,912.4</coordinates></Point>
+      </Placemark>
+
+      <Placemark id="weighbridge">
+        <name>Weighbridge</name>
+        <description>A point and a polygon in one feature: a mixed geometry collection.</description>
+        <MultiGeometry>
+          <Point><coordinates>77.4052,13.3496</coordinates></Point>
+          <Polygon>
+            <outerBoundaryIs><LinearRing><coordinates>
+              77.4051,13.3495 77.4053,13.3495 77.4053,13.3497 77.4051,13.3497 77.4051,13.3495
+            </coordinates></LinearRing></outerBoundaryIs>
+          </Polygon>
+        </MultiGeometry>
+      </Placemark>
+
+      <Placemark id="note-1">
+        <name>Site office (location to be confirmed)</name>
+        <description>A placemark with no geometry at all.</description>
+      </Placemark>
+
+      <Placemark id="bad-coords">
+        <name>Fence line (corrupt coordinates)</name>
+        <LineString>
+          <coordinates>77.4030,13.3490 77.4035;13.3491 77.4040,13.3492</coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>
