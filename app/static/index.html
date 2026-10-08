@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geospatial Measurement</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M5 25 L11 7 L26 11 L22 26 Z' fill='%231f6feb' fill-opacity='.25' stroke='%231f6feb' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --text: #1b2330; --muted: #5b6676; --line: #dde2e8;
+    --accent: #1f6feb; --accent-hover: #1a5fcc; --accent-text: #ffffff; --soft: #eef2f7;
+    --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e; --na: #6e7781;
+    --shape: #1f6feb; --shape-fill: rgba(31, 111, 235, 0.14); --hl: #e8590c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1318; --panel: #161c23; --text: #e6edf3; --muted: #97a3b0; --line: #2a333d;
+      --accent: #4c8dff; --accent-hover: #6aa1ff; --accent-text: #0e1318; --soft: #1e2630;
+      --ok: #3fb950; --warn: #d29922; --bad: #f85149; --na: #8b949e;
+      --shape: #58a6ff; --shape-fill: rgba(88, 166, 255, 0.16); --hl: #ff8c42;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 16px 48px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+           padding: 20px 0 12px; }
+  h1 { font-size: 22px; margin: 0; }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  h3 { font-size: 14px; margin: 16px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .sub { color: var(--muted); margin: 2px 0 0; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-top: 16px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel);
+         color: var(--text); padding: 8px 14px; border-radius: 8px; font: inherit; cursor: pointer; text-decoration: none; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  .btn.primary:hover { background: var(--accent-hover); }
+  .btn:disabled { opacity: .55; cursor: wait; }
+  .btn.small { padding: 3px 10px; font-size: 13px; }
+  .links { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+          border: 2px dashed var(--line); border-radius: 10px; padding: 26px 16px; cursor: pointer; background: var(--soft); }
+  .drop.over, .drop:hover { border-color: var(--accent); }
+  .drop input { display: none; }
+  .drop strong { font-size: 16px; }
+  .drop span { color: var(--muted); font-size: 13px; }
+  .options { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; margin-top: 14px; }
+  .options label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  .options input[type=text] { width: min(340px, 100%); padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+                              background: var(--panel); color: var(--text); font: inherit; }
+  .options .check { flex-direction: row; align-items: center; gap: 8px; color: var(--text); font-size: 14px; padding-bottom: 8px; }
+  .options .grow { flex: 1 1 260px; }
+
+  .notice { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--soft); border-left: 4px solid var(--accent); }
+  .notice.ok { border-left-color: var(--ok); }
+  .notice.bad { border-left-color: var(--bad); }
+  .notice:empty { display: none; }
+
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+           border: 1px solid currentColor; white-space: nowrap; }
+  .s-MEASURED, .s-COMPLETED { color: var(--ok); }
+  .s-NOT_APPLICABLE { color: var(--na); }
+  .s-UNSUPPORTED, .s-PROCESSING { color: var(--warn); }
+  .s-FAILED { color: var(--bad); }
+
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 18px; margin: 0; }
+  .meta dt { color: var(--muted); font-size: 12px; }
+  .meta dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 16px; }
+  .tile { background: var(--soft); border-radius: 10px; padding: 12px 14px; }
+  .tile .k { font-size: 12px; color: var(--muted); }
+  .tile .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); }
+  #m-table tbody tr { cursor: pointer; }
+  #m-table tbody tr.focus { background: var(--soft); box-shadow: inset 3px 0 0 var(--hl); }
+  .tile .u { font-size: 12px; color: var(--muted); }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 820px) { .split { grid-template-columns: 1fr; } }
+  .split > .panel { margin-top: 16px; }
+
+  svg.preview { width: 100%; height: auto; max-height: 460px; background: var(--soft); border-radius: 8px; display: block; }
+  svg.preview .poly { fill: var(--shape-fill); stroke: var(--shape); fill-rule: evenodd; }
+  svg.preview .line { fill: none; stroke: var(--shape); stroke-width: 2; }
+  svg.preview .pt { fill: var(--shape); }
+  svg.preview path, svg.preview circle { vector-effect: non-scaling-stroke; stroke-width: 1.5; }
+  svg.preview .hl { stroke: var(--hl); stroke-width: 3; fill-opacity: .9; }
+  .legend { color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:hover { background: var(--soft); }
+  .scroll { overflow-x: auto; }
+  .small { font-size: 12px; color: var(--muted); }
+  .muted { color: var(--muted); }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .toolbar select { padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; }
+  ul.plain { margin: 0; padding-left: 18px; }
+  ul.plain li { margin: 3px 0; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .error-box { border-left: 4px solid var(--bad); padding: 10px 12px; background: var(--soft); border-radius: 8px; margin-top: 12px; }
+  code { background: var(--soft); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Geospatial Measurement</h1>
+      <p class="sub">Upload a KML or a zipped Shapefile to get the area of every polygon and the length of every line, in metres.</p>
+    </div>
+    <nav class="links">
+      <a class="btn primary" href="/docs" id="docs-link">Open API docs (Swagger) &rarr;</a>
+      <a class="btn" href="/redoc">ReDoc</a>
+    </nav>
+  </header>
+
+  <section class="panel" aria-labelledby="upload-title">
+    <h2 id="upload-title">Upload a file</h2>
+    <form id="upload-form">
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept=".kml,.kmz,.zip">
+        <strong id="drop-name">Choose a file or drop it here</strong>
+        <span>.kml, .kmz, or .zip containing a Shapefile (.shp, .shx, .dbf, .prj)</span>
+      </label>
+      <div class="options">
+        <label class="grow">Source CRS (optional, used only if the file declares none)
+          <input type="text" id="crs" placeholder="e.g. EPSG:32643" autocomplete="off">
+        </label>
+        <label class="check"><input type="checkbox" id="async"> Process in the background</label>
+        <button class="btn primary" type="submit" id="submit">Upload and measure</button>
+      </div>
+    </form>
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+  </section>
+
+  <section id="result" hidden>
+    <section class="panel">
+      <div class="toolbar">
+        <h2 id="r-title" style="margin:0"></h2>
+        <div class="links small" id="r-json"></div>
+      </div>
+      <dl class="meta" id="r-meta"></dl>
+      <div id="r-error"></div>
+      <div id="r-warnings"></div>
+      <div class="tiles" id="r-tiles"></div>
+    </section>
+
+    <div class="split" id="r-split">
+      <section class="panel">
+        <h2>Preview</h2>
+        <div id="r-preview"></div>
+      </section>
+      <section class="panel">
+        <h2>Quality report</h2>
+        <div id="r-report"></div>
+      </section>
+    </div>
+
+    <section class="panel" id="r-table-panel">
+      <div class="toolbar">
+        <h2 style="margin:0">Measurements</h2>
+        <div class="links">
+          <select id="status-filter" aria-label="Filter by status">
+            <option value="">All statuses</option>
+            <option value="MEASURED">Measured</option>
+            <option value="NOT_APPLICABLE">Not applicable</option>
+            <option value="UNSUPPORTED">Unsupported</option>
+            <option value="FAILED">Failed</option>
+          </select>
+          <button class="btn small" id="prev" type="button">&larr; Prev</button>
+          <span class="small" id="page-info"></span>
+          <button class="btn small" id="next" type="button">Next &rarr;</button>
+        </div>
+      </div>
+      <div class="scroll"><table id="m-table"></table></div>
+    </section>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar">
+      <h2 style="margin:0">Recent uploads</h2>
+      <button class="btn small" id="refresh" type="button">Refresh</button>
+    </div>
+    <div class="scroll"><table id="recent"></table></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const PAGE = 100;
+const PREVIEW_LIMIT = 1000;
+let current = { id: null, offset: 0, total: 0 };
+
+// Builds DOM nodes. Strings become text nodes, so values from uploaded files are never parsed as HTML.
+function el(tag, props = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat()) if (c != null && c !== false) node.append(c instanceof Node ? c : String(c));
+  return node;
+}
+const svgEl = (tag, attrs = {}) => {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  return node;
+};
+const num = (v, digits = 2) => v == null ? "—" : Number(v).toLocaleString(undefined, { maximumFractionDigits: digits });
+const pct = (v) => v == null ? "—" : `${v > 0 ? "+" : ""}${Number(v).toFixed(4)}%`;
+const badge = (status) => el("span", { class: `badge s-${status}` }, status.replace("_", " "));
+
+async function api(path, options) {
+  const res = await fetch(path, options);
+  if (res.status === 204) return null;
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const err = new Error(body?.error?.message || body?.detail?.[0]?.msg || `Request failed (HTTP ${res.status})`);
+    err.body = body;
+    throw err;
+  }
+  return body;
+}
+
+function notify(text, kind = "") {
+  const box = $("#notice");
+  box.className = `notice ${kind}`;
+  box.textContent = text;
+}
+
+// ---------------------------------------------------------------- upload
+
+const fileInput = $("#file");
+const drop = $("#drop");
+fileInput.addEventListener("change", () => {
+  $("#drop-name").textContent = fileInput.files[0] ? fileInput.files[0].name : "Choose a file or drop it here";
+});
+["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((t) => drop.addEventListener(t, () => drop.classList.remove("over")));
+drop.addEventListener("drop", (e) => {
+  e.preventDefault();
+  if (e.dataTransfer.files.length) {
+    fileInput.files = e.dataTransfer.files;
+    fileInput.dispatchEvent(new Event("change"));
+  }
+});
+
+$("#upload-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = fileInput.files[0];
+  if (!file) return notify("Choose a file first.", "bad");
+  const form = new FormData();
+  form.append("file", file);
+  const crs = $("#crs").value.trim();
+  if (crs) form.append("crs", crs);
+  const background = $("#async").checked;
+
+  const button = $("#submit");
+  button.disabled = true;
+  button.textContent = "Measuring…";
+  notify(`Uploading ${file.name}…`);
+  const started = performance.now();
+  try {
+    let info = await api(`/api/files/${background ? "?async=true" : ""}`, { method: "POST", body: form });
+    if (info.status === "PROCESSING") {
+      notify(`Accepted (202). Processing ${file.name} in the background…`);
+      info = await waitUntilDone(info.id);
+    }
+    const seconds = ((performance.now() - started) / 1000).toFixed(2);
+    if (info.duplicate) notify("This exact file was uploaded before, so the stored result is shown.", "ok");
+    else if (info.status === "FAILED") notify(`The file could not be read: ${info.error}`, "bad");
+    else notify(`Measured ${num(info.feature_count, 0)} features in ${seconds} s.`, "ok");
+    await showFile(info.id);
+  } catch (err) {
+    notify(err.message, "bad");
+    const failedId = err.body?.error?.file_id;
+    if (failedId) await showFile(failedId);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Upload and measure";
+    loadRecent();
+  }
+});
+
+async function waitUntilDone(id) {
+  for (;;) {
+    const info = await api(`/api/files/${id}/`);
+    if (info.status !== "PROCESSING") return info;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+}
+
+// ---------------------------------------------------------------- one file
+
+async function showFile(id) {
+  const [info, report] = await Promise.all([api(`/api/files/${id}/`), api(`/api/files/${id}/report/`)]);
+  current = { id, offset: 0, total: 0 };
+  $("#result").hidden = false;
+
+  $("#r-title").replaceChildren(info.filename, " ", badge(info.status));
+  $("#r-json").replaceChildren(
+    "Raw JSON: ",
+    ...[["file", ""], ["features", "features/"], ["measurements", "measurements/"], ["report", "report/"]].flatMap(
+      ([label, path], i) => [i ? " · " : "", el("a", { href: `/api/files/${id}/${path}`, target: "_blank", rel: "noopener" }, label)]
+    )
+  );
+  const meta = [
+    ["Format", info.file_format], ["Source CRS", info.crs || "unknown"], ["Features", num(info.feature_count, 0)],
+    ["Size", `${num(info.size_bytes / 1024, 1)} KB`], ["Processing time", info.processing_ms == null ? "—" : `${num(info.processing_ms, 0)} ms`],
+    ["Uploaded", new Date(info.created_at).toLocaleString()], ["File id", info.id],
+  ];
+  $("#r-meta").replaceChildren(...meta.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]));
+  $("#r-error").replaceChildren(info.error ? el("div", { class: "error-box" }, el("strong", {}, "Error: "), info.error) : "");
+  $("#r-warnings").replaceChildren(
+    info.warnings.length ? el("div", { class: "notice" }, el("strong", {}, "Warnings"), el("ul", { class: "plain" }, info.warnings.map((w) => el("li", {}, w)))) : ""
+  );
+
+  const done = info.status === "COMPLETED";
+  $("#r-tiles").hidden = !done;
+  $("#r-split").hidden = !done;
+  $("#r-table-panel").hidden = !done;
+  if (!done) return $("#result").scrollIntoView({ behavior: "smooth" });
+
+  renderTiles(report.summary);
+  renderReport(report);
+  $("#status-filter").value = "";
+  await Promise.all([loadMeasurements(), loadPreview(id, info.crs, info.feature_count)]);
+  $("#result").scrollIntoView({ behavior: "smooth" });
+}
+
+function renderTiles(s) {
+  const tile = (k, v, u) => el("div", { class: "tile" }, el("div", { class: "k" }, k), el("div", { class: "v" }, v), el("div", { class: "u" }, u));
+  $("#r-tiles").replaceChildren(
+    tile("Total area", `${num(s.total_area_m2, 1)} m²`, `${num(s.total_area_hectares, 4)} ha`),
+    tile("Total length", `${num(s.total_length_m, 1)} m`, `${num(s.total_length_km, 3)} km`),
+    tile("Measured", num(s.measured, 0), "polygons and lines"),
+    tile("Not applicable", num(s.not_applicable, 0), "points, empty features"),
+    tile("Unsupported", num(s.unsupported, 0), "mixed collections, tracks, models"),
+    tile("Failed", num(s.failed, 0), "could not be measured; see reasons"),
+  );
+}
+
+function renderReport(r) {
+  const cc = r.cross_check;
+  const p = r.processing;
+  const parts = [
+    el("h3", { style: "margin-top:0" }, "Projections used"),
+    r.projections.length
+      ? el("table", {},
+          el("thead", {}, el("tr", {}, el("th", {}, "Projected CRS"), el("th", {}, "Strategy"), el("th", { class: "num" }, "Features"))),
+          el("tbody", {}, r.projections.map((x) => el("tr", {}, el("td", {}, shortCrs(x.projected_crs)), el("td", {}, x.strategy), el("td", { class: "num" }, num(x.features, 0))))))
+      : el("p", { class: "muted" }, "Nothing was measured."),
+    el("h3", {}, "Cross-check (projected vs geodesic)"),
+    el("dl", { class: "kv" },
+      el("dt", {}, "Features checked"), el("dd", {}, num(cc.features_checked, 0)),
+      el("dt", {}, "Largest deviation"), el("dd", {}, cc.max_abs_deviation_pct == null ? "—" : `${num(cc.max_abs_deviation_pct, 4)}%`,
+        cc.largest_deviation_index == null ? "" : el("span", { class: "small" }, ` (feature #${cc.largest_deviation_index})`)),
+      el("dt", {}, "Largest unexplained"), el("dd", {}, cc.max_abs_unexplained_pct == null ? "—" : `${num(cc.max_abs_unexplained_pct, 4)}%`),
+    ),
+    el("p", { class: "small" }, "Deviation is the gap between the two methods. Unexplained is what remains after the projection's known scale-factor distortion; near zero means the numbers agree."),
+    el("h3", {}, "Processing"),
+    el("dl", { class: "kv" },
+      el("dt", {}, "Polygons repaired"), el("dd", {}, num(p.repaired, 0)),
+      el("dt", {}, "Long edges densified"), el("dd", {}, num(p.densified, 0)),
+      el("dt", {}, "Crossing 180° longitude"), el("dd", {}, num(p.crosses_antimeridian, 0)),
+      el("dt", {}, "With real heights"), el("dd", {}, num(p.with_elevation, 0)),
+    ),
+    el("h3", {}, "Problems"),
+    r.problems.length
+      ? el("ul", { class: "plain" }, r.problems.map((x) => el("li", {}, badge(x.status), " ", `${num(x.features, 0)} × `, x.message,
+          el("span", { class: "small" }, ` (first: #${x.first_index})`))))
+      : el("p", { class: "muted" }, "None."),
+  ];
+  $("#r-report").replaceChildren(...parts);
+}
+
+const shortCrs = (crs) => crs && crs.startsWith("+proj=") ? el("span", { title: crs }, crs.split(" ").slice(0, 3).join(" ") + " …") : crs || "—";
+
+// ---------------------------------------------------------------- measurements table
+
+$("#status-filter").addEventListener("change", () => { current.offset = 0; loadMeasurements(); });
+$("#prev").addEventListener("click", () => { current.offset = Math.max(0, current.offset - PAGE); loadMeasurements(); });
+$("#next").addEventListener("click", () => { current.offset += PAGE; loadMeasurements(); });
+
+async function loadMeasurements() {
+  const status = $("#status-filter").value;
+  const query = new URLSearchParams({ limit: PAGE, offset: current.offset });
+  if (status) query.set("status", status);
+  const data = await api(`/api/files/${current.id}/measurements/?${query}`);
+  current.total = data.total;
+
+  const end = Math.min(current.offset + PAGE, data.total);
+  $("#page-info").textContent = data.total ? `${num(current.offset + 1, 0)}–${num(end, 0)} of ${num(data.total, 0)}` : "0 features";
+  $("#prev").disabled = current.offset === 0;
+  $("#next").disabled = end >= data.total;
+
+  const head = ["#", "Name", "Geometry", "Status", "Area", "Length", "Projection", "Deviation", "Unexplained", "Elevation", "Notes"];
+  const numeric = new Set(["#", "Area", "Length", "Deviation", "Unexplained"]);
+  $("#m-table").replaceChildren(
+    el("thead", {}, el("tr", {}, head.map((h) => el("th", { class: numeric.has(h) ? "num" : null }, h)))),
+    el("tbody", {}, data.results.map(measurementRow)),
+  );
+}
+
+function featureName(props) {
+  if (!props) return "—";
+  const v = props.name ?? props.Name ?? props.NAME ?? Object.values(props)[0];
+  return v == null || v === "" ? "—" : String(v);
+}
+
+function measurementRow(m) {
+  const cc = m.cross_check || {};
+  const notes = [];
+  if (m.message) notes.push(m.message);
+  if (m.processing?.repaired) notes.push("Repaired invalid polygon");
+  if (m.processing?.crosses_antimeridian) notes.push("Crosses 180° longitude");
+  if (m.processing?.vertices_added) notes.push(`${num(m.processing.vertices_added, 0)} vertices added on long edges`);
+  notes.push(...(m.warnings || []));
+
+  const e = m.elevation;
+  const surface = e && (e.surface_length_m ?? e.surface_perimeter_m);
+  const elevation = e ? el("span", {}, `${num(e.min_m, 1)}–${num(e.max_m, 1)} m`,
+    surface == null ? "" : el("div", { class: "small" }, `${e.surface_length_m != null ? "along ground" : "perimeter on ground"}: ${num(surface, 1)} m`)) : "—";
+
+  const row = el("tr", { "data-index": m.index },
+    el("td", { class: "num" }, m.index),
+    el("td", {}, featureName(m.properties)),
+    el("td", {}, m.geometry_type || "—"),
+    el("td", {}, badge(m.status)),
+    el("td", { class: "num" }, m.area_m2 == null ? "—" : el("span", {}, `${num(m.area_m2, 1)} m²`, el("div", { class: "small" }, `${num(m.area_hectares, 4)} ha`))),
+    el("td", { class: "num" }, m.length_m == null ? "—" : el("span", {}, `${num(m.length_m, 1)} m`, el("div", { class: "small" }, `${num(m.length_km, 3)} km`))),
+    el("td", {}, m.method ? el("span", { title: m.method.reason }, shortCrs(m.method.projected_crs), el("div", { class: "small" }, m.method.strategy)) : "—"),
+    el("td", { class: "num" }, pct(cc.deviation_pct)),
+    el("td", { class: "num" }, pct(cc.unexplained_pct)),
+    el("td", {}, elevation),
+    el("td", { class: "small" }, notes.length ? notes.join(" · ") : ""),
+  );
+  row.addEventListener("mouseenter", () => highlight(m.index, true));
+  row.addEventListener("mouseleave", () => highlight(m.index, false));
+  row.addEventListener("click", () => {
+    const again = preview?.focus === m.index;
+    document.querySelectorAll("#m-table tr.focus").forEach((r) => r.classList.remove("focus"));
+    if (!again) row.classList.add("focus");
+    drawPreview(again ? null : m.index);
+  });
+  return row;
+}
+
+function highlight(index, on) {
+  document.querySelectorAll(`#r-preview [data-index="${index}"]`).forEach((n) => n.classList.toggle("hl", on));
+}
+
+// ---------------------------------------------------------------- preview
+
+async function loadPreview(id, crs, count) {
+  const [features, measures] = await Promise.all([
+    api(`/api/files/${id}/features/?limit=${PREVIEW_LIMIT}`),
+    api(`/api/files/${id}/measurements/?limit=${PREVIEW_LIMIT}`),
+  ]);
+  const status = new Map(measures.results.map((m) => [m.index, m]));
+  const box = $("#r-preview");
+
+  const shapes = [];
+  const collect = (g, index) => {
+    if (!g) return;
+    const t = g.type, c = g.coordinates;
+    if (t === "Polygon") shapes.push({ index, kind: "poly", rings: c });
+    else if (t === "MultiPolygon") c.forEach((p) => shapes.push({ index, kind: "poly", rings: p }));
+    else if (t === "LineString") shapes.push({ index, kind: "line", rings: [c] });
+    else if (t === "MultiLineString") shapes.push({ index, kind: "line", rings: c });
+    else if (t === "Point") shapes.push({ index, kind: "pt", rings: [[c]] });
+    else if (t === "MultiPoint") shapes.push({ index, kind: "pt", rings: [c] });
+    else if (t === "GeometryCollection") g.geometries.forEach((x) => collect(x, index));
+  };
+  // Failed and unsupported features are left out: a swapped lat/lon would otherwise stretch the view.
+  features.results.forEach((f) => {
+    const st = status.get(f.index)?.status;
+    if (st !== "FAILED" && st !== "UNSUPPORTED") collect(f.geometry, f.index);
+  });
+  const valid = (p) => Array.isArray(p) && isFinite(p[0]) && isFinite(p[1]);
+  const points = shapes.flatMap((s) => s.rings.flat()).filter(valid);
+  if (!points.length) {
+    preview = null;
+    return box.replaceChildren(el("p", { class: "muted" }, "No measurable geometry to draw."));
+  }
+  const geographic = points.every(([x, y]) => Math.abs(x) <= 180 && Math.abs(y) <= 90) && (!crs || crs === "EPSG:4326");
+  preview = { shapes, status, geographic, valid, count, shown: features.results.length, focus: null,
+              wraps: geographic && points.some(([x]) => x > 90) && points.some(([x]) => x < -90) };
+  drawPreview(null);
+}
+
+let preview = null;
+
+function drawPreview(focus) {
+  if (!preview) return;
+  preview.focus = focus;
+  const { shapes, status, geographic, wraps, valid, count, shown } = preview;
+  const box = $("#r-preview");
+  const framed = focus == null ? shapes : shapes.filter((s) => s.index === focus);
+  if (!framed.length) {
+    return box.replaceChildren(el("p", { class: "muted" }, `Feature #${focus} has no shape to draw.`),
+      el("button", { class: "btn small", type: "button", onclick: () => drawPreview(null) }, "Show all"));
+  }
+  const points = framed.flatMap((s) => s.rings.flat()).filter(valid);
+  const fx = (x) => (wraps && x < 0 ? x + 360 : x);
+  const xs = points.map((p) => fx(p[0])), ys = points.map((p) => p[1]);
+  let minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  if (focus != null) {  // a margin around one feature, so its neighbours show for context
+    const mx = Math.max((maxX - minX) * 0.25, 1e-6), my = Math.max((maxY - minY) * 0.25, 1e-6);
+    minX -= mx; maxX += mx; minY -= my; maxY += my;
+  }
+  const kx = geographic ? Math.cos(((minY + maxY) / 2) * Math.PI / 180) : 1;
+  const w = Math.max((maxX - minX) * kx, 1e-9), h = Math.max(maxY - minY, 1e-9);
+  const scale = 1000 / Math.max(w, h);
+  const W = w * scale, H = h * scale, pad = 20;
+  const X = (x) => ((fx(x) - minX) * kx * scale + pad).toFixed(2);
+  const Y = (y) => ((maxY - y) * scale + pad).toFixed(2);
+
+  const svg = svgEl("svg", { class: "preview", viewBox: `0 0 ${(W + 2 * pad).toFixed(1)} ${(H + 2 * pad).toFixed(1)}`, role: "img",
+                             "aria-label": "Outline of the file's features" });
+  for (const s of shapes) {
+    const m = status.get(s.index);
+    const label = `#${s.index} ${featureName(m?.properties)}${m?.area_m2 != null ? ` — ${num(m.area_m2, 1)} m²` : ""}${m?.length_m != null ? ` — ${num(m.length_m, 1)} m` : ""}`;
+    const cls = `${s.kind} st-${m?.status || ""}`;
+    let node;
+    if (s.kind === "pt") {
+      node = svgEl("g", { "data-index": s.index, class: cls });
+      s.rings[0].forEach((p) => node.append(svgEl("circle", { cx: X(p[0]), cy: Y(p[1]), r: 5 })));
+    } else {
+      const d = s.rings.map((ring) => ring.map((p, i) => `${i ? "L" : "M"}${X(p[0])} ${Y(p[1])}`).join("") + (s.kind === "poly" ? "Z" : "")).join("");
+      node = svgEl("path", { d, class: cls, "data-index": s.index });
+    }
+    if (s.index === focus) node.classList.add("hl");
+    const title = svgEl("title");
+    title.textContent = label;
+    node.append(title);
+    svg.append(node);
+  }
+  box.replaceChildren(svg, el("div", { class: "legend" },
+    focus != null
+      ? el("span", {}, `Zoomed to feature #${focus}. `, el("button", { class: "btn small", type: "button", onclick: () => {
+          document.querySelectorAll("#m-table tr.focus").forEach((r) => r.classList.remove("focus"));
+          drawPreview(null);
+        } }, "Show all"))
+      : "",
+    ` Outline in the file's own coordinates${geographic ? " (longitude/latitude, corrected for latitude)" : ""}. `,
+    "Hover a shape for its measurement; click a table row to zoom to it. Failed and unsupported features are not drawn.",
+    count > shown ? ` Showing the first ${num(shown, 0)} of ${num(count, 0)} features.` : ""));
+}
+
+// ---------------------------------------------------------------- recent uploads
+
+$("#refresh").addEventListener("click", () => loadRecent());
+
+async function loadRecent() {
+  const table = $("#recent");
+  try {
+    const data = await api("/api/files/?limit=15");
+    if (!data.results.length) return table.replaceChildren(el("tbody", {}, el("tr", {}, el("td", { class: "muted" }, "No uploads yet."))));
+    table.replaceChildren(
+      el("thead", {}, el("tr", {}, ["File", "Status", "Features", "CRS", "Uploaded", ""].map((h) => el("th", { class: h === "Features" ? "num" : null }, h)))),
+      el("tbody", {}, data.results.map((f) => el("tr", {},
+        el("td", {}, f.filename),
+        el("td", {}, badge(f.status)),
+        el("td", { class: "num" }, num(f.feature_count, 0)),
+        el("td", {}, f.crs || "—"),
+        el("td", { class: "small" }, new Date(f.created_at).toLocaleString()),
+        el("td", { style: "white-space:nowrap" },
+          el("button", { class: "btn small", type: "button", onclick: () => showFile(f.id).catch((e) => notify(e.message, "bad")) }, "View"), " ",
+          el("button", { class: "btn small", type: "button", onclick: () => removeFile(f) }, "Delete")),
+      ))),
+    );
+  } catch (err) {
+    table.replaceChildren(el("tbody", {}, el("tr", {}, el("td", { class: "muted" }, `Could not load uploads: ${err.message}`))));
+  }
+}
+
+async function removeFile(f) {
+  if (!confirm(`Delete ${f.filename} and its measurements?`)) return;
+  try {
+    await api(`/api/files/${f.id}/`, { method: "DELETE" });
+    if (current.id === f.id) $("#result").hidden = true;
+    notify(`Deleted ${f.filename}.`, "ok");
+  } catch (err) {
+    notify(err.message, "bad");
+  }
+  loadRecent();
+}
+
+loadRecent();
+</script>
+</body>
+</html>

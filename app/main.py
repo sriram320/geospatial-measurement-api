@@ -2,9 +2,10 @@
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 
 from app.api import files
 from app.api.errors import ApiError, api_error_handler
@@ -12,7 +13,11 @@ from app.db import init_db
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+UPLOAD_PAGE = Path(__file__).parent / "static" / "index.html"
+
 DESCRIPTION = """
+**[Open the upload page](/)** to upload a file in the browser and see the results there.
+
 Upload a **KML** file or a **zipped Shapefile** and get back the area of every
 polygon and the length of every line, in metres.
 
@@ -40,8 +45,8 @@ app.include_router(files.router)
 
 
 @app.get("/", include_in_schema=False)
-def root() -> RedirectResponse:
-    return RedirectResponse("/docs")
+def upload_page() -> FileResponse:
+    return FileResponse(UPLOAD_PAGE, media_type="text/html")
 
 
 @app.get("/health", tags=["system"], summary="Liveness check")

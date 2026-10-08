@@ -399,6 +399,59 @@ def test_health(client):
     assert client.get("/health").json() == {"status": "ok"}
 
 
+def test_database_from_an_older_version_gets_the_new_columns(tmp_path):
+    from sqlalchemy import inspect, text
+
+    from app.db import init_db, make_engine
+
+    engine = make_engine(f"sqlite:///{tmp_path / 'old.db'}")
+    init_db(engine)
+    newer = ["crosses_antimeridian", "surface_length_m", "elevation_min_m", "elevation_max_m"]
+    with engine.begin() as conn:  # rebuild the table as an earlier version created it
+        for column in newer:
+            conn.execute(text(f"ALTER TABLE features DROP COLUMN {column}"))
+        conn.execute(text(
+            "INSERT INTO files (id, filename, size_bytes, sha256, status, feature_count, warnings, created_at) "
+            "VALUES ('old', 'old.kml', 10, 'x', 'COMPLETED', 1, '[]', '2026-01-01')"
+        ))
+        conn.execute(text(
+            "INSERT INTO features (file_id, feature_index, properties, status, area_m2, warnings) "
+            "VALUES ('old', 0, '{}', 'MEASURED', 42.0, '[]')"
+        ))
+
+    init_db(engine)
+
+    columns = {c["name"] for c in inspect(engine).get_columns("features")}
+    assert set(newer) <= columns
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT area_m2, crosses_antimeridian FROM features")).one() == (42.0, None)
+
+
+def test_database_missing_a_required_column_stops_startup_clearly(tmp_path):
+    from sqlalchemy import text
+
+    from app.db import init_db, make_engine
+
+    engine = make_engine(f"sqlite:///{tmp_path / 'old.db'}")
+    init_db(engine)
+    with engine.begin() as conn:
+        conn.execute(text("DROP INDEX ix_features_file_status"))
+        conn.execute(text("ALTER TABLE features DROP COLUMN status"))
+
+    with pytest.raises(RuntimeError, match="features.status"):
+        init_db(engine)
+
+
+def test_upload_page_and_swagger_link_to_each_other(client):
+    page = client.get("/")
+    assert page.status_code == 200
+    assert page.headers["content-type"].startswith("text/html")
+    assert 'href="/docs"' in page.text and 'fetch(path' in page.text
+
+    assert client.get("/docs").status_code == 200
+    assert "[Open the upload page](/)" in client.get("/openapi.json").json()["info"]["description"]
+
+
 # ------------------------------------------------------------ background processing
 
 def upload_async(client, name: str, data: bytes, **form):
